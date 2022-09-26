@@ -1,0 +1,11 @@
+{
+  "name": "post-embeds",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "compile_css": "node-sass --output-style compressed assets/scss/ --output=assets/css/ --watch"
+  },
+  "devDependencies": {
+    "node-sass": "^7.0.3"
+  }
+}

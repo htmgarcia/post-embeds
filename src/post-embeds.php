@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Post Embeds
+ * Plugin Name:       WP Post Embeds
  * Plugin URI:        https://htmgarcia.com
  * Description:       Customize your WordPress post embeds.
  * Author:            Valentin Garcia
@@ -12,48 +12,15 @@
  * Requires at least: 5.0
  */
 
-if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
+defined( 'ABSPATH' ) || die;
 
-    class wpPostEmbedsCustomizer
-    {
-        public function __construct()
-        {
-            add_filter( 'embed_template', [$this, 'loadEmbedTemplate'] );
-            add_action( 'embed_head', [$this, 'loadStyles'] );
-
-            // Remove default CSS
-            remove_action( 'embed_head', 'print_embed_styles' );
-        }
-
-        public function loadEmbedTemplate( $template )
-        {
-            $template = dirname( __FILE__ ) . '/templates/default.php';
-
-            // Post not found or wrong URL
-            if( is_404() ) {
-                $template = dirname( __FILE__ ) . '/templates/404.php';
-            }
-
-            return $template;
-        }
-
-        public function loadStyles ()
-        {
-            $type_attr = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
-            ?>
-            <style<?php echo $type_attr; ?>>
-        		<?php echo file_get_contents( dirname( __FILE__ ) . '/assets/css/default.css' ); ?>
-        	</style>
-            <style<?php echo $type_attr; ?>>
-            .wp-embed-featured-image {
-                float: none !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-            }
-            </style>
-            <?php
-        }
-
-    }
+if ( ! defined( 'VG_POST_EMBEDS_PLUGIN' ) ) {
+    define( 'VG_POST_EMBEDS_PLUGIN', __FILE__ );
 }
+
+if ( ! defined( 'VG_POST_EMBEDS_DIR' ) ) {
+    define( 'VG_POST_EMBEDS_DIR', __DIR__ );
+}
+
+require_once __DIR__ . '/helper/main.php';
 new wpPostEmbedsCustomizer();

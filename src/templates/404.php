@@ -1,6 +1,6 @@
 <?php
 /**
- * @package Post Embeds
+ * @package WP Post Embeds
  * @since 0.0.1
  */
 
