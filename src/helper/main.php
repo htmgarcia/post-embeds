@@ -14,7 +14,8 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
             if( is_admin() ) {
                 add_action( 'admin_menu', [$this, 'loadMenu'] );
             } else {
-                add_filter( 'embed_template', [$this, 'loadEmbedTemplate'] );
+                add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
+                add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
                 add_action( 'embed_head', [$this, 'loadStyles'] );
 
                 // Remove default CSS
@@ -23,14 +24,15 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
         }
 
         /*
-         * Override core/theme embed tenplate
+         * Override core/theme embed template
          *
          * @since 0.0.1
          * @param string $template The template file
          */
         public function loadEmbedTemplate( $template )
         {
-            $template = VG_POST_EMBEDS_DIR . '/templates/default.php';
+            $style      = $this->singleSetting( 'style', 'custom' );
+            $template   = VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php';
 
             // Post not found or wrong URL
             if( is_404() ) {
@@ -43,20 +45,14 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
         /*
          * Load our own custom CSS for embeds
          */
-        public function loadStyles ()
+        public function loadStyles()
         {
-            $type_attr = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
+            $type_attr  = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
+            $style      = $this->singleSetting( 'style', 'custom' );
             ?>
             <style<?php echo $type_attr; ?>>
-        		<?php echo file_get_contents( dirname( __FILE__ ) . '/assets/css/default.css' ); ?>
+        		<?php echo file_get_contents( dirname( __FILE__ ) . '/../assets/css/' . $style . '.css' ); ?>
         	</style>
-            <style<?php echo $type_attr; ?>>
-            .wp-embed-featured-image {
-                float: none !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-            }
-            </style>
             <?php
         }
 
@@ -109,6 +105,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 self::saveSettings();
 
                 $settings       = get_option( 'vg_post_embeds_settings' );
+                $style          = isset( $settings['style'] ) ? sanitize_text_field( $settings['style'] ) : '';
                 $default_design = isset( $settings['default_design'] ) && $settings['default_design'] ? 'checked' : '';
                     if ( ! isset( $settings['default_design'] ) ) {
                         $result = 'checked';
@@ -118,6 +115,27 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 <form method="post">
                     <?php wp_nonce_field( 'vg_post_embeds_settings_nonce', 'vg_post_embeds_settings_nonce_field' ) ?>
                     <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Embed style', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <select name="style">
+                                        <option value="default"
+                                            <?php echo sanitize_text_field( $style ) === 'default' ? ' selected' : '' ?>
+                                        >
+                                            <?php esc_attr_e( 'Default', 'post-embeds' ) ?>
+                                        </option>
+                                        <option value="custom"
+                                            <?php echo sanitize_text_field( $style ) === 'custom' ? ' selected' : '' ?>
+                                        >
+                                            <?php esc_attr_e( 'Custom', 'post-embeds' ) ?>
+                                        </option>
+                                    </select>
+                                </label>
+                            </td>
+                        </tr>
                         <tr>
                             <th scope="row">
                                 <?php _e( 'Default embed design', 'post-embeds' ) ?>
@@ -143,30 +161,6 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                         </button>
                     </p>
                 </form>
-            </div>
-            <?php
-        }
-
-        /*
-         * Success or error messages
-         *
-         * @since 0.0.1
-         * @param string $text The message to display
-         * @param string $type 'error' or 'success' (default)
-         */
-        public function notifyMsg( $text, $type = 'success' )
-        {
-            if( $type === 'success' ) {
-                $class = 'updated fade';
-            } else {
-                $class = 'error';
-            }
-
-            ?>
-            <div id="message" class="<?php echo $class ?>">
-                <p>
-                    <?php echo $text; ?>
-                </p>
             </div>
             <?php
         }
@@ -198,6 +192,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 }
 
                 $settings                   = get_option( 'vg_post_embeds_settings' );
+                $settings['style']          = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : '';
                 $settings['default_design'] = isset( $_POST['default_design'] ) ? 1 : 0;
 
                 update_option( 'vg_post_embeds_settings', $settings );
@@ -206,6 +201,59 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                     __( 'Settings saved successfully!', 'post-embeds' )
                 );
             }
+        }
+
+        /*
+         * Get value of a single setting
+         *
+         * @since 0.0.1
+         * @param string $setting Single setting stored in vg_post_embeds_settings option
+         * @param string $default Default value when not saved in database
+         *
+         * return mixed
+         */
+        public function singleSetting( $setting, $default )
+        {
+            $all        = get_option( 'vg_post_embeds_settings' );
+            $setting    = isset( $all[$setting] ) && ! empty( $all[$setting] ) ? esc_html( $all[$setting] ) : $default;
+
+            return $setting;
+        }
+
+        /*
+         * Success or error messages
+         *
+         * @since 0.0.1
+         * @param string $text The message to display
+         * @param string $type 'error' or 'success' (default)
+         */
+        public function notifyMsg( $text, $type = 'success' )
+        {
+            if( $type === 'success' ) {
+                $class = 'updated fade';
+            } else {
+                $class = 'error';
+            }
+
+            ?>
+            <div id="message" class="<?php echo $class ?>">
+                <p>
+                    <?php echo $text; ?>
+                </p>
+            </div>
+            <?php
+        }
+
+        /*
+         * Set <body> classes
+         *
+         * @since 0.0.1
+         */
+        public function setBodyClasses( $classes )
+        {
+            unset($classes);
+            $classes = ['pe-embed-responsive'];
+            return $classes;
         }
     }
 }
