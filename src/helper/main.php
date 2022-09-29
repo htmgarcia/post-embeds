@@ -14,12 +14,22 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
             if( is_admin() ) {
                 add_action( 'admin_menu', [$this, 'loadMenu'] );
             } else {
+
+                remove_action( 'embed_head', 'print_embed_styles' );
+                remove_action( 'embed_content_meta', 'print_embed_comments_button' );
+                remove_action( 'embed_content_meta', 'print_embed_sharing_button' );
+                remove_action( 'embed_footer', 'print_embed_sharing_dialog' );
+                remove_action( 'embed_footer', 'print_embed_scripts' );
+
                 add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
                 add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
-                add_action( 'embed_head', [$this, 'loadStyles'] );
+                add_filter( 'embed_site_title_html', [$this, 'siteLogo'], 9999 );
 
-                // Remove default CSS
-                remove_action( 'embed_head', 'print_embed_styles' );
+                add_action( 'embed_head', [$this, 'loadStyles'] );
+                add_action( 'embed_content_meta', [$this, 'footerMeta'] );
+                add_action( 'embed_content_meta', [$this, 'commentsMeta'] );
+                add_action( 'embed_footer', [$this, 'footerEmbed'] );
+                add_action( 'embed_footer', [$this, 'loadScripts'] );
             }
         }
 
@@ -31,8 +41,10 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          */
         public function loadEmbedTemplate( $template )
         {
-            $style      = $this->singleSetting( 'style', 'custom' );
-            $template   = VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php';
+            $style = $this->singleSetting( 'style', 'custom' ) !== 'default'
+                ? 'custom'
+                : 'default';
+            $template = VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php';
 
             // Post not found or wrong URL
             if( is_404() ) {
@@ -105,7 +117,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 self::saveSettings();
 
                 $settings       = get_option( 'vg_post_embeds_settings' );
-                $style          = isset( $settings['style'] ) ? sanitize_text_field( $settings['style'] ) : '';
+                $style          = isset( $settings['style'] ) ? sanitize_text_field( $settings['style'] ) : 'default';
                 $default_design = isset( $settings['default_design'] ) && $settings['default_design'] ? 'checked' : '';
                     if ( ! isset( $settings['default_design'] ) ) {
                         $result = 'checked';
@@ -127,10 +139,10 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                                         >
                                             <?php esc_attr_e( 'Default', 'post-embeds' ) ?>
                                         </option>
-                                        <option value="custom"
-                                            <?php echo sanitize_text_field( $style ) === 'custom' ? ' selected' : '' ?>
+                                        <option value="social"
+                                            <?php echo sanitize_text_field( $style ) === 'social' ? ' selected' : '' ?>
                                         >
-                                            <?php esc_attr_e( 'Custom', 'post-embeds' ) ?>
+                                            <?php esc_attr_e( 'Social', 'post-embeds' ) ?>
                                         </option>
                                     </select>
                                 </label>
@@ -254,6 +266,127 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
             unset($classes);
             $classes = ['pe-embed-responsive'];
             return $classes;
+        }
+
+        /**
+         * Footer output
+         *
+         * @since 0.0.1
+         */
+        function footerEmbed() {
+        	if ( is_404() ) {
+        		return;
+        	}
+        	?>
+        	<div class="pe-embed-share-dialog hidden" role="dialog" aria-label="<?php esc_attr_e( 'Sharing options' ); ?>">
+        		<div class="pe-embed-share-dialog-content">
+        			<div class="pe-embed-share-dialog-text">
+        				<ul class="pe-embed-share-tabs" role="tablist">
+        					<li class="pe-embed-share-tab-button pe-embed-share-tab-button-wordpress" role="presentation">
+        						<button type="button" role="tab" aria-controls="pe-embed-share-tab-wordpress" aria-selected="true" tabindex="0"><?php esc_html_e( 'WordPress Embed' ); ?></button>
+        					</li>
+        					<li class="pe-embed-share-tab-button pe-embed-share-tab-button-html" role="presentation">
+        						<button type="button" role="tab" aria-controls="pe-embed-share-tab-html" aria-selected="false" tabindex="-1"><?php esc_html_e( 'HTML Embed' ); ?></button>
+        					</li>
+        				</ul>
+        				<div id="pe-embed-share-tab-wordpress" class="pe-embed-share-tab" role="tabpanel" aria-hidden="false">
+        					<input type="text" value="<?php the_permalink(); ?>" class="pe-embed-share-input" aria-describedby="pe-embed-share-description-wordpress" tabindex="0" readonly/>
+
+        					<p class="pe-embed-share-description" id="pe-embed-share-description-wordpress">
+        						<?php _e( 'Copy and paste this URL into your WordPress site to embed' ); ?>
+        					</p>
+        				</div>
+        				<div id="pe-embed-share-tab-html" class="pe-embed-share-tab" role="tabpanel" aria-hidden="true">
+        					<textarea class="pe-embed-share-input" aria-describedby="pe-embed-share-description-html" tabindex="0" readonly><?php echo esc_textarea( get_post_embed_html( 600, 400 ) ); ?></textarea>
+
+        					<p class="pe-embed-share-description" id="pe-embed-share-description-html">
+        						<?php _e( 'Copy and paste this code into your site to embed' ); ?>
+        					</p>
+        				</div>
+        			</div>
+
+        			<button type="button" class="pe-embed-share-dialog-close" aria-label="<?php esc_attr_e( 'Close sharing dialog' ); ?>">
+        				<span class="dashicons dashicons-no"></span>
+        			</button>
+        		</div>
+        	</div>
+        	<?php
+        }
+
+        /**
+         * Footer meta output
+         *
+         * @since 0.0.1
+         */
+        function footerMeta() {
+            if ( is_404() ) {
+        		return;
+        	}
+        	?>
+        	<div class="pe-embed-share">
+        		<button type="button" class="pe-embed-share-dialog-open" aria-label="<?php esc_attr_e( 'Open sharing dialog' ); ?>">
+        			<span class="dashicons dashicons-share"></span>
+        		</button>
+        	</div>
+        	<?php
+        }
+
+        /**
+         * Site logo output
+         *
+         * @since 0.0.1
+         */
+        function siteLogo( $site_title ) {
+        	$site_title = sprintf(
+        		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="32" height="32" alt="" class="pe-embed-site-icon" /></a>',
+        		esc_url( home_url() ),
+        		esc_url( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
+        		esc_url( get_site_icon_url( 64, includes_url( 'images/w-logo-blue.png' ) ) )
+        	);
+
+        	$site_title = '<div class="pe-embed-site-title">' . $site_title . '</div>';
+
+            return $site_title;
+        }
+
+        /**
+         * Output comments counter
+         *
+         * @since 0.0.1
+         */
+        function commentsMeta() {
+        	if ( is_404() || ! ( get_comments_number() || comments_open() ) ) {
+        		return;
+        	}
+        	?>
+        	<div class="pe-embed-comments">
+        		<a href="<?php comments_link(); ?>" target="_top">
+        			<span class="dashicons dashicons-admin-comments"></span>
+        			<?php
+        			printf(
+        				/* translators: %s: Number of comments. */
+        				_n(
+        					'%s <span class="screen-reader-text">Comment</span>',
+        					'%s <span class="screen-reader-text">Comments</span>',
+        					get_comments_number()
+        				),
+        				number_format_i18n( get_comments_number() )
+        			);
+        			?>
+        		</a>
+        	</div>
+        	<?php
+        }
+
+        /**
+         * Output the JavaScript
+         *
+         * @since 0.0.1
+         */
+        function loadScripts() {
+        	wp_print_inline_script_tag(
+        		file_get_contents( VG_POST_EMBEDS_DIR . '/assets/js/script.js' )
+        	);
         }
     }
 }
