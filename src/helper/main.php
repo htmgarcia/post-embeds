@@ -338,9 +338,9 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          */
         function siteLogo( $site_title ) {
         	$site_title = sprintf(
-        		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="32" height="32" alt="" class="pe-embed-site-icon" /></a>',
+        		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="52" height="52" alt="" class="pe-embed-site-icon" /></a>',
         		esc_url( home_url() ),
-        		esc_url( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
+        		esc_url( get_site_icon_url( 52, includes_url( 'images/w-logo-blue.png' ) ) ),
         		esc_url( get_site_icon_url( 64, includes_url( 'images/w-logo-blue.png' ) ) )
         	);
 

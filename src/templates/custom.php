@@ -18,33 +18,43 @@ if ( ! headers_sent() ) {
 <body <?php body_class(); ?>>
     <div class="pe-embed">
 
-        <h4 class="pe-title">
-            <a href="<?php the_permalink(); ?>" target="_top">
-                 <?php the_title(); ?>
-            </a>
-        </h4>
-
-        <div class="pe-excerpt">
-            <?php the_excerpt_embed(); ?>
+        <div class="pe-title">
+            <?php the_embed_site_title(); ?>
+            <div>
+                <h4>
+                    <a href="<?php the_permalink(); ?>" target="_top">
+                        <?php the_title(); ?>
+                    </a>
+                </h4>
+                <div>
+                    <a href="#">John Doe</a>
+                </div>
+            </div>
         </div>
-
-        <div class="pe-content">
-            <?php do_action( 'embed_content' ); ?>
-        </div>
-
         <?php
         // $thumbnail_id, $shape and $image_size values comes from image.php
         include_once 'parts/image.php';
-        if ( $thumbnail_id ) :
-            ?>
-            <div class="pe-image <?php echo $shape ?>">
-                 <a href="<?php the_permalink(); ?>" target="_top">
-                     <?php echo wp_get_attachment_image( $thumbnail_id, $image_size ); ?>
-                 </a>
-            </div>
-            <?php
-        endif;
         ?>
+        <div class="pe-excerpt-image pe-image-shape-<?php echo $shape ?>">
+            <div class="pe-excerpt">
+                <?php
+                the_excerpt_embed();
+                do_action( 'embed_content' );
+                ?>
+            </div>
+
+            <?php
+            if ( $thumbnail_id ) :
+                $image_url = wp_get_attachment_image_url( $thumbnail_id, $image_size );
+                // the_permalink();
+                ?>
+                <div class="pe-image" style="background-image:url(<?php echo $image_url ?>);">
+                    <?php echo wp_get_attachment_image( $thumbnail_id, $image_size ); ?>
+                </div>
+                <?php
+            endif;
+            ?>
+        </div>
 
         <div class="pe-date">
             <p>6:44 PM &bullet; Aug 18, 2022</p>
@@ -59,8 +69,7 @@ if ( ! headers_sent() ) {
         </div>
 
         <div class="pe-footer">
-            <?php the_embed_site_title(); ?>
-        	<div class="pe-embed-meta">
+            <div class="pe-embed-meta">
         		<?php do_action( 'embed_content_meta' ); ?>
         	</div>
         </div>
