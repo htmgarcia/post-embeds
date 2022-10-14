@@ -56,9 +56,7 @@ if ( ! headers_sent() ) {
             ?>
         </div>
 
-        <div class="pe-date">
-            <p>6:44 PM &bullet; Aug 18, 2022</p>
-        </div>
+        <?php do_action( 'vg_post_embeds_datetime' ); // .pe-date ?>
 
         <div class="pe-readmore">
             <p>

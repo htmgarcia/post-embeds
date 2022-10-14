@@ -1,6 +1,9 @@
 <?php
 /**
  * Post embeds class
+ * Valentin Garcia
+ * @htmgarcia
+ * https://htmgarcia.com
  */
 
 defined( 'ABSPATH' ) || die;
@@ -15,21 +18,27 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 add_action( 'admin_menu', [$this, 'loadMenu'] );
             } else {
 
-                remove_action( 'embed_head', 'print_embed_styles' );
-                remove_action( 'embed_content_meta', 'print_embed_comments_button' );
-                remove_action( 'embed_content_meta', 'print_embed_sharing_button' );
-                remove_action( 'embed_footer', 'print_embed_sharing_dialog' );
-                remove_action( 'embed_footer', 'print_embed_scripts' );
+                // Don't modify embeds if Style is 'default'
+                if( $this->singleSetting( 'style', 'social-bird' ) !== 'default' ) {
+                    remove_action( 'embed_head', 'print_embed_styles' );
+                    remove_action( 'embed_content_meta', 'print_embed_comments_button' );
+                    remove_action( 'embed_content_meta', 'print_embed_sharing_button' );
+                    remove_action( 'embed_footer', 'print_embed_sharing_dialog' );
+                    remove_action( 'embed_footer', 'print_embed_scripts' );
 
-                add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
-                add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
-                add_filter( 'embed_site_title_html', [$this, 'siteLogo'], 9999 );
+                    add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
+                    add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
+                    add_filter( 'embed_site_title_html', [$this, 'siteLogo'], 9999 );
 
-                add_action( 'embed_head', [$this, 'loadStyles'] );
-                add_action( 'embed_content_meta', [$this, 'footerMeta'] );
-                add_action( 'embed_content_meta', [$this, 'commentsMeta'] );
-                add_action( 'embed_footer', [$this, 'footerEmbed'] );
-                add_action( 'embed_footer', [$this, 'loadScripts'] );
+                    add_action( 'embed_head', [$this, 'loadStyles'] );
+                    add_action( 'embed_content_meta', [$this, 'footerMeta'] );
+                    add_action( 'embed_content_meta', [$this, 'commentsMeta'] );
+                    add_action( 'embed_footer', [$this, 'footerEmbed'] );
+                    add_action( 'embed_footer', [$this, 'loadScripts'] );
+
+                    // Custom hooks
+                    add_action( 'vg_post_embeds_datetime', [$this, 'dateTimeOutput'] );
+                }
             }
         }
 
@@ -41,8 +50,8 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          */
         public function loadEmbedTemplate( $template )
         {
-            $style = $this->singleSetting( 'style', 'custom' ) !== 'default'
-                ? 'custom'
+            $style = $this->singleSetting( 'style', 'social-bird' ) !== 'default'
+                ? 'custom' // custom.php template when style is different to 'default'
                 : 'default';
             $template = VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php';
 
@@ -60,7 +69,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
         public function loadStyles()
         {
             $type_attr  = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
-            $style      = $this->singleSetting( 'style', 'custom' );
+            $style      = $this->singleSetting( 'style', 'social-bird' );
             ?>
             <style<?php echo $type_attr; ?>>
         		<?php echo file_get_contents( dirname( __FILE__ ) . '/../assets/css/' . $style . '.css' ); ?>
@@ -73,33 +82,18 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          */
         public function loadMenu()
         {
-            if ( empty( $GLOBALS['admin_page_hooks']['vg_post_embeds'] ) ) {
-                add_menu_page(
-                    __( 'Post Embeds' , 'post-embeds' ),
-                    __( 'Post Embeds' , 'post-embeds' ),
-                    'manage_options',
-                    'vg_post_embeds',
-                    [$this, 'loadMainPage'],
-                    'dashicons-embed-post'
-                );
-            }
 
             add_submenu_page(
-                'vg_post_embeds',
-                __( 'Settings' , 'post-embeds' ),
-                __( 'Settings' , 'post-embeds' ),
+                'options-general.php',
+                __( 'Post Embeds' , 'post-embeds' ),
+                __( 'Post Embeds' , 'post-embeds' ),
                 'manage_options',
-                'vg_post_embeds_settings',
+                'vg_post_embeds',
                 [
                     $this, 'loadSettingsPage'
                 ]
             );
 
-        }
-
-        public function loadMainPage()
-        {
-            echo 'Main page';
         }
 
         /*
@@ -110,7 +104,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
             ?>
             <div class="wrap">
                 <h1>
-                    <?php esc_html_e( 'Settings', 'post-embeds' ); ?>
+                    <?php esc_html_e( 'Post Embeds', 'post-embeds' ); ?>
                 </h1>
 
                 <?php
@@ -118,10 +112,9 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
 
                 $settings       = get_option( 'vg_post_embeds_settings' );
                 $style          = isset( $settings['style'] ) ? sanitize_text_field( $settings['style'] ) : 'default';
-                $default_design = isset( $settings['default_design'] ) && $settings['default_design'] ? 'checked' : '';
-                    if ( ! isset( $settings['default_design'] ) ) {
-                        $result = 'checked';
-                    }
+                $display_date   = isset( $settings['display_date'] ) && (bool) $settings['display_date'] ? 'checked' : '';
+                $display_time   = isset( $settings['display_time'] ) && (bool) $settings['display_time'] ? 'checked' : '';
+                $datetime_order = isset( $settings['datetime_order'] ) ? sanitize_text_field( $settings['datetime_order'] ) : 'time-date';
                 ?>
 
                 <form method="post">
@@ -129,7 +122,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                     <table class="form-table">
                         <tr>
                             <th scope="row">
-                                <?php _e( 'Embed style', 'post-embeds' ) ?>
+                                <?php _e( 'Embed Style', 'post-embeds' ) ?>
                             </th>
                             <td>
                                 <label>
@@ -139,10 +132,73 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                                         >
                                             <?php esc_attr_e( 'Default', 'post-embeds' ) ?>
                                         </option>
-                                        <option value="social"
-                                            <?php echo sanitize_text_field( $style ) === 'social' ? ' selected' : '' ?>
+                                        <option value="social-bird"
+                                            <?php echo sanitize_text_field( $style ) === 'social-bird' ? ' selected' : '' ?>
                                         >
-                                            <?php esc_attr_e( 'Social', 'post-embeds' ) ?>
+                                            <?php esc_attr_e( 'Social Bird', 'post-embeds' ) ?>
+                                        </option>
+                                    </select>
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr />
+                    <h2 class="title">
+                        <?php _e( 'Date & Time', 'post-embeds' ) ?>
+                    </h2>
+
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Display Post Date', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="display_date" value="1"
+                                        <?php echo esc_attr( $display_date ) ?>
+                                    />
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Display Post Time', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="display_time" value="1"
+                                        <?php echo esc_attr( $display_time ) ?>
+                                    />
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Date & Time Order', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <select name="datetime_order">
+                                        <option value="time-date"
+                                            <?php echo sanitize_text_field( $datetime_order ) === 'time-date' ? ' selected' : '' ?>
+                                        >
+                                            <?php
+                                            printf(
+                                                esc_attr__( 'time %s date', 'post-embeds' ),
+                                                '&bullet;'
+                                            );
+                                            ?>
+                                        </option>
+                                        <option value="date-time"
+                                            <?php echo sanitize_text_field( $datetime_order ) === 'date-time' ? ' selected' : '' ?>
+                                        >
+                                            <?php
+                                            printf(
+                                                esc_attr__( 'date %s time', 'post-embeds' ),
+                                                '&bullet;'
+                                            );
+                                            ?>
                                         </option>
                                     </select>
                                 </label>
@@ -150,20 +206,20 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                         </tr>
                         <tr>
                             <th scope="row">
-                                <?php _e( 'Default embed design', 'post-embeds' ) ?>
+                                <?php _e( 'Date & Time Format', 'post-embeds' ) ?>
                             </th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="default_design" value="1"
-                                        <?php echo esc_attr( $default_design ) ?>
-                                    />
-                                </label>
-                                <?php
-                                esc_html_e(
-                                    'If unchecked, core or theme styles for embeds won\'t load',
-                                    'post-embeds'
-                                )
-                                ?>
+                                <p>
+                                    <?php
+                                    printf(
+                                        __( 'Check %3$sDate Format%4$s and %3$sTime Format%4$s in %1$sSettings%2$s.', 'post-embeds' ),
+                                        '<a href="' . admin_url( 'options-general.php' ) . '" target="_blank">',
+                                        '</a>',
+                                        '<strong>',
+                                        '</strong>'
+                                    );
+                                    ?>
+                                </p>
                             </td>
                         </tr>
                     </table>
@@ -204,8 +260,10 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 }
 
                 $settings                   = get_option( 'vg_post_embeds_settings' );
-                $settings['style']          = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : '';
-                $settings['default_design'] = isset( $_POST['default_design'] ) ? 1 : 0;
+                $settings['style']          = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'social-bird';
+                $settings['display_date']   = isset( $_POST['display_date'] ) ? 1 : 0;
+                $settings['display_time']   = isset( $_POST['display_time'] ) ? 1 : 0;
+                $settings['datetime_order'] = isset( $_POST['datetime_order'] ) && ! empty( $_POST['datetime_order'] ) ? sanitize_text_field( $_POST['datetime_order'] ) : 'time-date';
 
                 update_option( 'vg_post_embeds_settings', $settings );
 
@@ -227,7 +285,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
         public function singleSetting( $setting, $default )
         {
             $all        = get_option( 'vg_post_embeds_settings' );
-            $setting    = isset( $all[$setting] ) && ! empty( $all[$setting] ) ? esc_html( $all[$setting] ) : $default;
+            $setting    = isset( $all[$setting] ) ? esc_html( $all[$setting] ) : $default;
 
             return $setting;
         }
@@ -273,7 +331,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        function footerEmbed() {
+        public function footerEmbed() {
         	if ( is_404() ) {
         		return;
         	}
@@ -318,7 +376,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        function footerMeta() {
+        public function footerMeta() {
             if ( is_404() ) {
         		return;
         	}
@@ -336,7 +394,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        function siteLogo( $site_title ) {
+        public function siteLogo( $site_title ) {
         	$site_title = sprintf(
         		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="52" height="52" alt="" class="pe-embed-site-icon" /></a>',
         		esc_url( home_url() ),
@@ -354,7 +412,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        function commentsMeta() {
+        public function commentsMeta() {
         	if ( is_404() || ! ( get_comments_number() || comments_open() ) ) {
         		return;
         	}
@@ -383,10 +441,55 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        function loadScripts() {
+        public function loadScripts() {
         	wp_print_inline_script_tag(
         		file_get_contents( VG_POST_EMBEDS_DIR . '/assets/js/script.js' )
         	);
+        }
+
+        /**
+         * Date & Time embed output
+         *
+         * @since 0.0.1
+         */
+        public function dateTimeOutput() {
+
+            $display_date = (bool) $this->singleSetting( 'display_date', 1 );
+            $display_time = (bool) $this->singleSetting( 'display_time', 1 );
+
+            if( $display_date && $display_time ) {
+                // Display date and time
+                $datetime_order = $this->singleSetting( 'datetime_order', 'date-time' );
+
+                if( $datetime_order === 'time-date' ) {
+                    $format = '%1$s &bullet; %2$s';
+                } else {
+                    $format = '%2$s &bullet; %1$s';
+                }
+
+                $output = sprintf(
+                    $format,
+                    get_the_date( get_option('time_format') ),
+                    get_the_date( get_option('date_format') )
+                );
+            } elseif( $display_date && ! $display_time ) {
+                // Display only date
+                $output = get_the_date( get_option('date_format') );
+            } elseif( ! $display_date && $display_time ) {
+                // Display only time
+                $output = get_the_date( get_option('time_format') );
+            } else {
+                // Empty string when nothing will be displayed
+                $output = '';
+            }
+
+            if( ! empty( $output ) ) {
+                ?>
+                <div class="pe-date">
+                    <p><?php echo $output ?></p>
+                </div>
+                <?php
+            }
         }
     }
 }

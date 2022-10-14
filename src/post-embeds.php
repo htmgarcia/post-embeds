@@ -22,5 +22,21 @@ if ( ! defined( 'VG_POST_EMBEDS_DIR' ) ) {
     define( 'VG_POST_EMBEDS_DIR', __DIR__ );
 }
 
+register_activation_hook( __FILE__, function () {
+
+    // Save default settings
+    if ( ! get_option( 'vg_post_embeds_settings' ) ) {
+        update_option(
+            'vg_post_embeds_settings',
+            [
+                'style' => 'social-bird',
+                'display_date' => 1,
+                'display_time' => 1,
+                'datetime_order' => 'time-date'
+            ]
+        );
+    }
+} );
+
 require_once __DIR__ . '/helper/main.php';
 new wpPostEmbedsCustomizer();
