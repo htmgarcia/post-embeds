@@ -35,7 +35,9 @@ if ( ! headers_sent() ) {
         // $thumbnail_id, $shape and $image_size values comes from image.php
         include_once 'parts/image.php';
         ?>
-        <div class="pe-excerpt-image pe-image-shape-<?php echo $shape ?>">
+
+        <div class="pe-excerpt-image<?php echo isset( $shape ) ? ' pe-image-shape-' . $shape : '' ?>">
+            <a href="<?php the_permalink(); ?>" target="_top"></a>
             <div class="pe-excerpt">
                 <?php
                 the_excerpt_embed();
@@ -46,7 +48,6 @@ if ( ! headers_sent() ) {
             <?php
             if ( $thumbnail_id ) :
                 $image_url = wp_get_attachment_image_url( $thumbnail_id, $image_size );
-                // the_permalink();
                 ?>
                 <div class="pe-image" style="background-image:url(<?php echo $image_url ?>);">
                     <?php echo wp_get_attachment_image( $thumbnail_id, $image_size ); ?>
@@ -58,13 +59,7 @@ if ( ! headers_sent() ) {
 
         <?php do_action( 'vg_post_embeds_datetime' ); // .pe-date ?>
 
-        <div class="pe-readmore">
-            <p>
-                 <a href="<?php the_permalink(); ?>" target="_top">
-                     Continue reading...
-                 </a>
-            </p>
-        </div>
+        <?php do_action( 'vg_post_embeds_readmore' ); // .pe-readmore ?>
 
         <div class="pe-footer">
             <div class="pe-embed-meta">

@@ -37,7 +37,8 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                     add_action( 'embed_footer', [$this, 'loadScripts'] );
 
                     // Custom hooks
-                    add_action( 'vg_post_embeds_datetime', [$this, 'dateTimeOutput'] );
+                    add_action( 'vg_post_embeds_datetime', [$this, 'dateTime'] );
+                    add_action( 'vg_post_embeds_readmore', [$this, 'readmore'] );
                 }
             }
         }
@@ -110,11 +111,19 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 <?php
                 self::saveSettings();
 
-                $settings       = get_option( 'vg_post_embeds_settings' );
-                $style          = isset( $settings['style'] ) ? sanitize_text_field( $settings['style'] ) : 'default';
-                $display_date   = isset( $settings['display_date'] ) && (bool) $settings['display_date'] ? 'checked' : '';
-                $display_time   = isset( $settings['display_time'] ) && (bool) $settings['display_time'] ? 'checked' : '';
-                $datetime_order = isset( $settings['datetime_order'] ) ? sanitize_text_field( $settings['datetime_order'] ) : 'time-date';
+                $settings           = get_option( 'vg_post_embeds_settings' );
+
+                // CSS Style
+                $style              = isset( $settings['style'] ) ? esc_html( $settings['style'] ) : 'default';
+
+                // Date & Time
+                $display_date       = isset( $settings['display_date'] ) && (bool) $settings['display_date'] ? 'checked' : '';
+                $display_time       = isset( $settings['display_time'] ) && (bool) $settings['display_time'] ? 'checked' : '';
+                $datetime_order     = isset( $settings['datetime_order'] ) ? esc_html( $settings['datetime_order'] ) : 'time-date';
+
+                // Read More
+                $display_readmore   = isset( $settings['display_readmore'] ) && (bool) $settings['display_readmore'] ? 'checked' : '';
+                $readmore_text      = isset( $settings['readmore_text'] ) ? esc_html( $settings['readmore_text'] ) : '';
                 ?>
 
                 <form method="post">
@@ -128,12 +137,12 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                                 <label>
                                     <select name="style">
                                         <option value="default"
-                                            <?php echo sanitize_text_field( $style ) === 'default' ? ' selected' : '' ?>
+                                            <?php echo $style === 'default' ? ' selected' : '' ?>
                                         >
                                             <?php esc_attr_e( 'Default', 'post-embeds' ) ?>
                                         </option>
                                         <option value="social-bird"
-                                            <?php echo sanitize_text_field( $style ) === 'social-bird' ? ' selected' : '' ?>
+                                            <?php echo $style === 'social-bird' ? ' selected' : '' ?>
                                         >
                                             <?php esc_attr_e( 'Social Bird', 'post-embeds' ) ?>
                                         </option>
@@ -156,7 +165,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                             <td>
                                 <label>
                                     <input type="checkbox" name="display_date" value="1"
-                                        <?php echo esc_attr( $display_date ) ?>
+                                        <?php esc_attr_e( $display_date ) ?>
                                     />
                                 </label>
                             </td>
@@ -168,7 +177,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                             <td>
                                 <label>
                                     <input type="checkbox" name="display_time" value="1"
-                                        <?php echo esc_attr( $display_time ) ?>
+                                        <?php esc_attr_e( $display_time ) ?>
                                     />
                                 </label>
                             </td>
@@ -223,6 +232,46 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                             </td>
                         </tr>
                     </table>
+
+                    <hr />
+                    <h2 class="title">
+                        <?php _e( 'Read More', 'post-embeds' ) ?>
+                    </h2>
+
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Display Read More', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="display_readmore" value="1"
+                                        <?php esc_attr_e( $display_readmore ) ?>
+                                    />
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Read More Text', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="text" name="readmore_text"
+                                           class="regular-text"
+                                           value="<?php esc_html_e( $readmore_text ) ?>"
+                                    />
+                                </label>
+                                <p class="description">
+                                    <?php
+                                    _e( 'Replace default "Read More" text.',
+                                        'post-embeds'
+                                    );
+                                    ?>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
                     <p>
                         <button type="submit" class="button button-primary" name="save">
                             <?php esc_html_e( 'Save Settings', 'post-embeds' ) ?>
@@ -259,11 +308,19 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                     return false;
                 }
 
-                $settings                   = get_option( 'vg_post_embeds_settings' );
-                $settings['style']          = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'social-bird';
-                $settings['display_date']   = isset( $_POST['display_date'] ) ? 1 : 0;
-                $settings['display_time']   = isset( $_POST['display_time'] ) ? 1 : 0;
-                $settings['datetime_order'] = isset( $_POST['datetime_order'] ) && ! empty( $_POST['datetime_order'] ) ? sanitize_text_field( $_POST['datetime_order'] ) : 'time-date';
+                $settings                       = get_option( 'vg_post_embeds_settings' );
+
+                // CSS Style
+                $settings['style']              = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'social-bird';
+
+                // Date & Time
+                $settings['display_date']       = isset( $_POST['display_date'] ) ? 1 : 0;
+                $settings['display_time']       = isset( $_POST['display_time'] ) ? 1 : 0;
+                $settings['datetime_order']     = isset( $_POST['datetime_order'] ) && ! empty( $_POST['datetime_order'] ) ? sanitize_text_field( $_POST['datetime_order'] ) : 'time-date';
+
+                // Readmore
+                $settings['display_readmore']   = isset( $_POST['display_readmore'] ) ? 1 : 0;
+                $settings['readmore_text']      = isset( $_POST['readmore_text'] ) && ! empty( $_POST['readmore_text'] ) ? sanitize_text_field( $_POST['readmore_text'] ) : '';
 
                 update_option( 'vg_post_embeds_settings', $settings );
 
@@ -452,7 +509,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        public function dateTimeOutput() {
+        public function dateTime() {
 
             $display_date = (bool) $this->singleSetting( 'display_date', 1 );
             $display_time = (bool) $this->singleSetting( 'display_time', 1 );
@@ -487,6 +544,37 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 ?>
                 <div class="pe-date">
                     <p><?php echo $output ?></p>
+                </div>
+                <?php
+            }
+        }
+
+        /**
+         * Readmore embed output
+         *
+         * @since 0.0.1
+         */
+        public function readmore()
+        {
+            global $post;
+
+            $display_readmore   = (bool) $this->singleSetting( 'display_readmore', 1 );
+            $readmore_text      = $this->singleSetting( 'readmore_text', '' );
+
+            if( $display_readmore ) {
+                ?>
+                <div class="pe-readmore">
+                    <p>
+                         <a href="<?php the_permalink( $post ); ?>" target="_top">
+                             <?php
+                             if( ! empty( $readmore_text ) ) {
+                                 esc_html_e( $readmore_text );
+                             } else {
+                                 esc_html_e( 'Read More', 'post-embeds' );
+                             }
+                             ?>
+                         </a>
+                    </p>
                 </div>
                 <?php
             }

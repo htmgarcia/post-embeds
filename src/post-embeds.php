@@ -32,7 +32,9 @@ register_activation_hook( __FILE__, function () {
                 'style' => 'social-bird',
                 'display_date' => 1,
                 'display_time' => 1,
-                'datetime_order' => 'time-date'
+                'datetime_order' => 'time-date',
+                'display_readmore' => 1,
+                'readmore_text' => ''
             ]
         );
     }
