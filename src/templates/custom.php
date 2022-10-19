@@ -26,9 +26,10 @@ if ( ! headers_sent() ) {
                         <?php the_title(); ?>
                     </a>
                 </h4>
-                <div>
-                    <a href="#">John Doe</a>
-                </div>
+                <?php
+                // Author
+                include_once 'parts/author.php';
+                ?>
             </div>
         </div>
         <?php
