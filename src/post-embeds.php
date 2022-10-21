@@ -34,11 +34,16 @@ register_activation_hook( __FILE__, function () {
                 'display_time' => 1,
                 'datetime_order' => 'time-date',
                 'display_readmore' => 1,
-                'readmore_text' => ''
+                'readmore_text' => '',
+                'display_author' => 1,
+                'post_types' => [
+                    'post' => 1,
+                    'page' => 1
+                ]
             ]
         );
     }
 } );
 
 require_once __DIR__ . '/helper/main.php';
-new wpPostEmbedsCustomizer();
+new vgPostEmbedsCustomizer();

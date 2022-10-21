@@ -26,10 +26,7 @@ if ( ! headers_sent() ) {
                         <?php the_title(); ?>
                     </a>
                 </h4>
-                <?php
-                // Author
-                include_once 'parts/author.php';
-                ?>
+                <?php do_action( 'vg_post_embeds_author' ); // .pe-author ?>
             </div>
         </div>
         <?php

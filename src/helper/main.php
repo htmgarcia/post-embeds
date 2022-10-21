@@ -8,9 +8,9 @@
 
 defined( 'ABSPATH' ) || die;
 
-if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
+if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
 
-    class wpPostEmbedsCustomizer
+    class vgPostEmbedsCustomizer
     {
         public function __construct()
         {
@@ -18,28 +18,50 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 add_action( 'admin_menu', [$this, 'loadMenu'] );
             } else {
 
-                // Don't modify embeds if Style is 'default'
-                if( $this->singleSetting( 'style', 'social-bird' ) !== 'default' ) {
-                    remove_action( 'embed_head', 'print_embed_styles' );
-                    remove_action( 'embed_content_meta', 'print_embed_comments_button' );
-                    remove_action( 'embed_content_meta', 'print_embed_sharing_button' );
-                    remove_action( 'embed_footer', 'print_embed_sharing_dialog' );
-                    remove_action( 'embed_footer', 'print_embed_scripts' );
+                add_action( 'wp', function() {
+                    global $wp_query;
 
-                    add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
-                    add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
-                    add_filter( 'embed_site_title_html', [$this, 'siteLogo'], 9999 );
+                    $settings           = get_option( 'vg_post_embeds_settings' );
+                    $post_types         = isset( $settings['post_types'] ) && is_array( $settings['post_types'] )
+                                            ? $settings['post_types']
+                                            : ['post' => 1, 'page' => 1];
+                    $enabled_post_types = [];
 
-                    add_action( 'embed_head', [$this, 'loadStyles'] );
-                    add_action( 'embed_content_meta', [$this, 'footerMeta'] );
-                    add_action( 'embed_content_meta', [$this, 'commentsMeta'] );
-                    add_action( 'embed_footer', [$this, 'footerEmbed'] );
-                    add_action( 'embed_footer', [$this, 'loadScripts'] );
+                    foreach( $post_types as $post_type => $key ) {
+                        if( (bool) $key ) {
+                            $enabled_post_types[] = $post_type;
+                        }
+                    }
 
-                    // Custom hooks
-                    add_action( 'vg_post_embeds_datetime', [$this, 'dateTime'] );
-                    add_action( 'vg_post_embeds_readmore', [$this, 'readmore'] );
-                }
+                    // Check if current post is embed and post type is supported
+                    if( $wp_query->is_embed && in_array( $wp_query->posts[0]->post_type, $enabled_post_types ) ) {
+
+                        // Don't modify embeds when using default style (core embed design)
+                        if( $this->singleSetting( 'style', 'social-bird' ) !== 'default' ) {
+                            remove_action( 'embed_head', 'print_embed_styles' );
+                            remove_action( 'embed_content_meta', 'print_embed_comments_button' );
+                            remove_action( 'embed_content_meta', 'print_embed_sharing_button' );
+                            remove_action( 'embed_footer', 'print_embed_sharing_dialog' );
+                            remove_action( 'embed_footer', 'print_embed_scripts' );
+
+                            add_action( 'embed_content_meta', [$this, 'footerMeta'] );
+                            add_action( 'embed_content_meta', [$this, 'commentsMeta'] );
+                            add_action( 'embed_footer', [$this, 'footerEmbed'] );
+                            add_action( 'embed_footer', [$this, 'loadScripts'] );
+                        }
+
+                        add_action( 'embed_head', [$this, 'loadStyles'] );
+
+                        add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
+                        add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
+                        add_filter( 'embed_site_title_html', [$this, 'siteLogo'], 9999 );
+
+                        // Custom hooks
+                        add_action( 'vg_post_embeds_datetime', [$this, 'dateTime'] );
+                        add_action( 'vg_post_embeds_readmore', [$this, 'readmore'] );
+                        add_action( 'vg_post_embeds_author', [$this, 'author'] );
+                    }
+                } );
             }
         }
 
@@ -115,6 +137,8 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
 
                 // CSS Style
                 $style              = isset( $settings['style'] ) ? esc_html( $settings['style'] ) : 'default';
+                $post_types['post'] = isset( $settings['post_types']['post'] ) && (bool) $settings['post_types']['post'] ? 'checked' : '';
+                $post_types['page'] = isset( $settings['post_types']['page'] ) && (bool) $settings['post_types']['page'] ? 'checked' : '';
 
                 // Date & Time
                 $display_date       = isset( $settings['display_date'] ) && (bool) $settings['display_date'] ? 'checked' : '';
@@ -124,6 +148,9 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                 // Read More
                 $display_readmore   = isset( $settings['display_readmore'] ) && (bool) $settings['display_readmore'] ? 'checked' : '';
                 $readmore_text      = isset( $settings['readmore_text'] ) ? esc_html( $settings['readmore_text'] ) : '';
+
+                // Author
+                $display_author     = isset( $settings['display_author'] ) && (bool) $settings['display_author'] ? 'checked' : '';
                 ?>
 
                 <form method="post">
@@ -148,6 +175,25 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                                         </option>
                                     </select>
                                 </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Post Types', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <p>
+                                    <input type="checkbox" name="post_types[post]" value="1"
+                                        <?php esc_attr_e( $post_types['post'] ) ?>
+                                    />
+                                    <?php _e( 'Post', 'post-embeds' ) ?>
+                                </p>
+                                <p>
+                                    <input type="checkbox" name="post_types[page]" value="1"
+                                        <?php esc_attr_e( $post_types['page'] ) ?>
+                                    />
+                                    <?php _e( 'Page', 'post-embeds' ) ?>
+                                </p>
                             </td>
                         </tr>
                     </table>
@@ -272,6 +318,27 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                             </td>
                         </tr>
                     </table>
+
+                    <hr />
+                    <h2 class="title">
+                        <?php _e( 'Author', 'post-embeds' ) ?>
+                    </h2>
+
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Display Author', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="display_author" value="1"
+                                        <?php esc_attr_e( $display_author ) ?>
+                                    />
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+
                     <p>
                         <button type="submit" class="button button-primary" name="save">
                             <?php esc_html_e( 'Save Settings', 'post-embeds' ) ?>
@@ -312,15 +379,20 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
 
                 // CSS Style
                 $settings['style']              = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'social-bird';
+                $settings['post_types']['post'] = isset( $_POST['post_types']['post'] ) ? 1 : 0;
+                $settings['post_types']['page'] = isset( $_POST['post_types']['page'] ) ? 1 : 0;
 
                 // Date & Time
                 $settings['display_date']       = isset( $_POST['display_date'] ) ? 1 : 0;
                 $settings['display_time']       = isset( $_POST['display_time'] ) ? 1 : 0;
                 $settings['datetime_order']     = isset( $_POST['datetime_order'] ) && ! empty( $_POST['datetime_order'] ) ? sanitize_text_field( $_POST['datetime_order'] ) : 'time-date';
 
-                // Readmore
+                // Read more
                 $settings['display_readmore']   = isset( $_POST['display_readmore'] ) ? 1 : 0;
                 $settings['readmore_text']      = isset( $_POST['readmore_text'] ) && ! empty( $_POST['readmore_text'] ) ? sanitize_text_field( $_POST['readmore_text'] ) : '';
+
+                // Author
+                $settings['display_author']   = isset( $_POST['display_author'] ) ? 1 : 0;
 
                 update_option( 'vg_post_embeds_settings', $settings );
 
@@ -550,7 +622,7 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
         }
 
         /**
-         * Readmore embed output
+         * Read more embed output
          *
          * @since 0.0.1
          */
@@ -575,6 +647,30 @@ if( ! class_exists( 'wpPostEmbedsCustomizer' ) ) {
                              ?>
                          </a>
                     </p>
+                </div>
+                <?php
+            }
+        }
+
+        /**
+         * Author embed output
+         *
+         * @since 0.0.1
+         */
+        public function author()
+        {
+            global $post;
+
+            $display_author = (bool) $this->singleSetting( 'display_author', 1 );
+
+            if( $display_author ) {
+                $author_name    = get_the_author_meta( 'display_name' , $post->post_author );
+                $author_url     = esc_url( get_author_posts_url( $post->post_author ) );
+                ?>
+                <div class="pe-author">
+                    <a href="<?php echo $author_url ?>">
+                        <?php echo $author_name ?>
+                    </a>
                 </div>
                 <?php
             }

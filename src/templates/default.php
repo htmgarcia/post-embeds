@@ -104,13 +104,15 @@
 			</a>
 		</p>
 
-		<?php if ( $thumbnail_id && 'square' === $shape ) : ?>
+        <?php if ( $thumbnail_id && 'square' === $shape ) : ?>
 			<div class="wp-embed-featured-image square">
 				<a href="<?php the_permalink(); ?>" target="_top">
 					<?php echo wp_get_attachment_image( $thumbnail_id, $image_size ); ?>
 				</a>
 			</div>
 		<?php endif; ?>
+
+        <?php do_action( 'vg_post_embeds_author' ); // .pe-author ?>
 
 		<div class="wp-embed-excerpt"><?php the_excerpt_embed(); ?></div>
 
