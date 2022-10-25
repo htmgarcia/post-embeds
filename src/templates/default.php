@@ -114,7 +114,11 @@
 
         <?php do_action( 'vg_post_embeds_author' ); // .pe-author ?>
 
+        <?php do_action( 'vg_post_embeds_datetime' ); // .pe-date ?>
+
 		<div class="wp-embed-excerpt"><?php the_excerpt_embed(); ?></div>
+
+        <?php do_action( 'vg_post_embeds_readmore' ); // .pe-readmore ?>
 
 		<?php
 		/**

@@ -133,28 +133,73 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                 <?php
                 self::saveSettings();
 
-                $settings           = get_option( 'vg_post_embeds_settings' );
+                $settings                   = get_option( 'vg_post_embeds_settings' );
 
                 // CSS Style
-                $style              = isset( $settings['style'] ) ? esc_html( $settings['style'] ) : 'default';
-                $post_types['post'] = isset( $settings['post_types']['post'] ) && (bool) $settings['post_types']['post'] ? 'checked' : '';
-                $post_types['page'] = isset( $settings['post_types']['page'] ) && (bool) $settings['post_types']['page'] ? 'checked' : '';
+                $style                      = isset( $settings['style'] ) ? esc_html( $settings['style'] ) : 'default';
 
-                // Date & Time
-                $display_date       = isset( $settings['display_date'] ) && (bool) $settings['display_date'] ? 'checked' : '';
-                $display_time       = isset( $settings['display_time'] ) && (bool) $settings['display_time'] ? 'checked' : '';
-                $datetime_order     = isset( $settings['datetime_order'] ) ? esc_html( $settings['datetime_order'] ) : 'time-date';
+                // Post Types
+                $post_types['post']         = isset( $settings['post_types']['post'] ) && (bool) $settings['post_types']['post'] ? 'checked' : '';
+                $post_types['page']         = isset( $settings['post_types']['page'] ) && (bool) $settings['post_types']['page'] ? 'checked' : '';
+
+                // Date
+                $display_date['post']       = isset( $settings['display_date']['post'] ) && (bool) $settings['display_date']['post'] ? 'checked' : '';
+                $display_date['page']       = isset( $settings['display_date']['page'] ) && (bool) $settings['display_date']['page'] ? 'checked' : '';
+
+                // Time
+                $display_time['post']       = isset( $settings['display_time']['post'] ) && (bool) $settings['display_time']['post'] ? 'checked' : '';
+                $display_time['page']       = isset( $settings['display_time']['page'] ) && (bool) $settings['display_time']['page'] ? 'checked' : '';
+
+                // Date & Time Order
+                $datetime_order             = isset( $settings['datetime_order'] ) ? esc_html( $settings['datetime_order'] ) : 'time-date';
 
                 // Read More
-                $display_readmore   = isset( $settings['display_readmore'] ) && (bool) $settings['display_readmore'] ? 'checked' : '';
-                $readmore_text      = isset( $settings['readmore_text'] ) ? esc_html( $settings['readmore_text'] ) : '';
+                $display_readmore['post']   = isset( $settings['display_readmore']['post'] ) && (bool) $settings['display_readmore']['post'] ? 'checked' : '';
+
+                // Read More text
+                $readmore_text              = isset( $settings['readmore_text'] ) ? esc_html( $settings['readmore_text'] ) : '';
 
                 // Author
-                $display_author     = isset( $settings['display_author'] ) && (bool) $settings['display_author'] ? 'checked' : '';
+                $display_author['post']     = isset( $settings['display_author']['post'] ) && (bool) $settings['display_author']['post'] ? 'checked' : '';
                 ?>
 
                 <form method="post">
                     <?php wp_nonce_field( 'vg_post_embeds_settings_nonce', 'vg_post_embeds_settings_nonce_field' ) ?>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Supported Post Types', 'post-embeds' ) ?>
+                            </th>
+                            <td>
+                                <fieldset>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="post_types[post]" value="1"
+                                                <?php esc_attr_e( $post_types['post'] ) ?>
+                                            />
+                                            <?php _e( 'Post', 'post-embeds' ) ?>
+                                        </label><br/>
+                                        <label>
+                                            <input type="checkbox" name="post_types[page]" value="1"
+                                                <?php esc_attr_e( $post_types['page'] ) ?>
+                                            />
+                                            <?php _e( 'Page', 'post-embeds' ) ?>
+                                        </label>
+                                    </p>
+                                    <p class="description">
+                                        <?php
+                                        _e( 'The settings below will apply to the checked post types.',
+                                            'post-embeds'
+                                        );
+                                        ?>
+                                    </p>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr />
+
                     <table class="form-table">
                         <tr>
                             <th scope="row">
@@ -179,41 +224,32 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                         </tr>
                         <tr>
                             <th scope="row">
-                                <?php _e( 'Post Types', 'post-embeds' ) ?>
-                            </th>
-                            <td>
-                                <p>
-                                    <input type="checkbox" name="post_types[post]" value="1"
-                                        <?php esc_attr_e( $post_types['post'] ) ?>
-                                    />
-                                    <?php _e( 'Post', 'post-embeds' ) ?>
-                                </p>
-                                <p>
-                                    <input type="checkbox" name="post_types[page]" value="1"
-                                        <?php esc_attr_e( $post_types['page'] ) ?>
-                                    />
-                                    <?php _e( 'Page', 'post-embeds' ) ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <hr />
-                    <h2 class="title">
-                        <?php _e( 'Date & Time', 'post-embeds' ) ?>
-                    </h2>
-
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row">
                                 <?php _e( 'Display Post Date', 'post-embeds' ) ?>
                             </th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="display_date" value="1"
-                                        <?php esc_attr_e( $display_date ) ?>
-                                    />
-                                </label>
+                                <fieldset>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="display_date[post]" value="1"
+                                                <?php esc_attr_e( $display_date['post'] ) ?>
+                                            />
+                                            <?php _e( 'Post', 'post-embeds' ) ?>
+                                        </label><br/>
+                                        <label>
+                                            <input type="checkbox" name="display_date[page]" value="1"
+                                                <?php esc_attr_e( $display_date['page'] ) ?>
+                                            />
+                                            <?php _e( 'Page', 'post-embeds' ) ?>
+                                        </label>
+                                    </p>
+                                    <p class="description">
+                                        <?php
+                                        _e( 'The post date will be displayed to the checked post types.',
+                                            'post-embeds'
+                                        );
+                                        ?>
+                                    </p>
+                                </fieldset>
                             </td>
                         </tr>
                         <tr>
@@ -221,11 +257,29 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                                 <?php _e( 'Display Post Time', 'post-embeds' ) ?>
                             </th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="display_time" value="1"
-                                        <?php esc_attr_e( $display_time ) ?>
-                                    />
-                                </label>
+                                <fieldset>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="display_time[post]" value="1"
+                                                <?php esc_attr_e( $display_time['post'] ) ?>
+                                            />
+                                            <?php _e( 'Post', 'post-embeds' ) ?>
+                                        </label><br/>
+                                        <label>
+                                            <input type="checkbox" name="display_time[page]" value="1"
+                                                <?php esc_attr_e( $display_time['page'] ) ?>
+                                            />
+                                            <?php _e( 'Page', 'post-embeds' ) ?>
+                                        </label>
+                                    </p>
+                                    <p class="description">
+                                        <?php
+                                        _e( 'The post time will be displayed to the checked post types.',
+                                            'post-embeds'
+                                        );
+                                        ?>
+                                    </p>
+                                </fieldset>
                             </td>
                         </tr>
                         <tr>
@@ -277,24 +331,28 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                                 </p>
                             </td>
                         </tr>
-                    </table>
-
-                    <hr />
-                    <h2 class="title">
-                        <?php _e( 'Read More', 'post-embeds' ) ?>
-                    </h2>
-
-                    <table class="form-table">
                         <tr>
                             <th scope="row">
                                 <?php _e( 'Display Read More', 'post-embeds' ) ?>
                             </th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="display_readmore" value="1"
-                                        <?php esc_attr_e( $display_readmore ) ?>
-                                    />
-                                </label>
+                                <fieldset>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="display_readmore[post]" value="1"
+                                                <?php esc_attr_e( $display_readmore['post'] ) ?>
+                                            />
+                                            <?php _e( 'Post', 'post-embeds' ) ?>
+                                        </label>
+                                    </p>
+                                    <p class="description">
+                                        <?php
+                                        _e( 'The read more will be displayed to the checked post types.',
+                                            'post-embeds'
+                                        );
+                                        ?>
+                                    </p>
+                                </fieldset>
                             </td>
                         </tr>
                         <tr>
@@ -317,24 +375,28 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                                 </p>
                             </td>
                         </tr>
-                    </table>
-
-                    <hr />
-                    <h2 class="title">
-                        <?php _e( 'Author', 'post-embeds' ) ?>
-                    </h2>
-
-                    <table class="form-table">
                         <tr>
                             <th scope="row">
                                 <?php _e( 'Display Author', 'post-embeds' ) ?>
                             </th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="display_author" value="1"
-                                        <?php esc_attr_e( $display_author ) ?>
-                                    />
-                                </label>
+                                <fieldset>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="display_author[post]" value="1"
+                                                <?php esc_attr_e( $display_author['post'] ) ?>
+                                            />
+                                            <?php _e( 'Post', 'post-embeds' ) ?>
+                                        </label>
+                                    </p>
+                                    <p class="description">
+                                        <?php
+                                        _e( 'The author will be displayed to the checked post types.',
+                                            'post-embeds'
+                                        );
+                                        ?>
+                                    </p>
+                                </fieldset>
                             </td>
                         </tr>
                     </table>
@@ -375,24 +437,34 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                     return false;
                 }
 
-                $settings                       = get_option( 'vg_post_embeds_settings' );
+                $settings                               = get_option( 'vg_post_embeds_settings' );
 
                 // CSS Style
-                $settings['style']              = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'social-bird';
-                $settings['post_types']['post'] = isset( $_POST['post_types']['post'] ) ? 1 : 0;
-                $settings['post_types']['page'] = isset( $_POST['post_types']['page'] ) ? 1 : 0;
+                $settings['style']                      = isset( $_POST['style'] ) && ! empty( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'social-bird';
 
-                // Date & Time
-                $settings['display_date']       = isset( $_POST['display_date'] ) ? 1 : 0;
-                $settings['display_time']       = isset( $_POST['display_time'] ) ? 1 : 0;
-                $settings['datetime_order']     = isset( $_POST['datetime_order'] ) && ! empty( $_POST['datetime_order'] ) ? sanitize_text_field( $_POST['datetime_order'] ) : 'time-date';
+                // Post Types
+                $settings['post_types']['post']         = isset( $_POST['post_types']['post'] ) ? 1 : 0;
+                $settings['post_types']['page']         = isset( $_POST['post_types']['page'] ) ? 1 : 0;
+
+                // Date
+                $settings['display_date']['post']       = isset( $_POST['display_date']['post'] ) ? 1 : 0;
+                $settings['display_date']['page']       = isset( $_POST['display_date']['page'] ) ? 1 : 0;
+
+                // Time
+                $settings['display_time']['post']       = isset( $_POST['display_time']['post'] ) ? 1 : 0;
+                $settings['display_time']['page']       = isset( $_POST['display_time']['page'] ) ? 1 : 0;
+
+                // Date & Time Order
+                $settings['datetime_order']             = isset( $_POST['datetime_order'] ) && ! empty( $_POST['datetime_order'] ) ? sanitize_text_field( $_POST['datetime_order'] ) : 'time-date';
 
                 // Read more
-                $settings['display_readmore']   = isset( $_POST['display_readmore'] ) ? 1 : 0;
-                $settings['readmore_text']      = isset( $_POST['readmore_text'] ) && ! empty( $_POST['readmore_text'] ) ? sanitize_text_field( $_POST['readmore_text'] ) : '';
+                $settings['display_readmore']['post']   = isset( $_POST['display_readmore']['post'] ) ? 1 : 0;
+
+                // Read More Text
+                $settings['readmore_text']              = isset( $_POST['readmore_text'] ) && ! empty( $_POST['readmore_text'] ) ? sanitize_text_field( $_POST['readmore_text'] ) : '';
 
                 // Author
-                $settings['display_author']   = isset( $_POST['display_author'] ) ? 1 : 0;
+                $settings['display_author']['post']     = isset( $_POST['display_author']['post'] ) ? 1 : 0;
 
                 update_option( 'vg_post_embeds_settings', $settings );
 
@@ -581,10 +653,25 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        public function dateTime() {
+        public function dateTime()
+        {
+            global $post;
 
-            $display_date = (bool) $this->singleSetting( 'display_date', 1 );
-            $display_time = (bool) $this->singleSetting( 'display_time', 1 );
+            $post_type = $post->post_type;
+
+            if( ! in_array( $post_type, ['post','page'] ) ) {
+                return;
+            }
+
+            $settings       = get_option( 'vg_post_embeds_settings' );
+            $display_date   = isset( $settings['display_date'][$post_type] )
+                            && (bool) $settings['display_date'][$post_type]
+                                ? 1
+                                : 0;
+            $display_time   = isset( $settings['display_time'][$post_type] )
+                            && (bool) $settings['display_time'][$post_type]
+                                ? 1
+                                : 0;
 
             if( $display_date && $display_time ) {
                 // Display date and time
@@ -630,10 +717,15 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         {
             global $post;
 
-            $display_readmore   = (bool) $this->singleSetting( 'display_readmore', 1 );
-            $readmore_text      = $this->singleSetting( 'readmore_text', '' );
+            if( $post->post_type !== 'post' ) {
+                return;
+            }
 
-            if( $display_readmore ) {
+            $settings                   = get_option( 'vg_post_embeds_settings' );
+            $display_readmore['post']   = isset( $settings['display_readmore']['post'] ) && (bool) $settings['display_readmore']['post'] ? 1 : 0;
+            $readmore_text              = $this->singleSetting( 'readmore_text', '' );
+
+            if( $display_readmore['post'] ) {
                 ?>
                 <div class="pe-readmore">
                     <p>
@@ -661,7 +753,12 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         {
             global $post;
 
-            $display_author = (bool) $this->singleSetting( 'display_author', 1 );
+            if( $post->post_type !== 'post' ) {
+                return;
+            }
+
+            $settings       = get_option( 'vg_post_embeds_settings' );
+            $display_author = isset( $settings['display_author']['post'] ) && (bool) $settings['display_author']['post'] ? 1 : 0;
 
             if( $display_author ) {
                 $author_name    = get_the_author_meta( 'display_name' , $post->post_author );

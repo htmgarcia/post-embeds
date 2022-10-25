@@ -30,15 +30,25 @@ register_activation_hook( __FILE__, function () {
             'vg_post_embeds_settings',
             [
                 'style' => 'social-bird',
-                'display_date' => 1,
-                'display_time' => 1,
-                'datetime_order' => 'time-date',
-                'display_readmore' => 1,
-                'readmore_text' => '',
-                'display_author' => 1,
                 'post_types' => [
                     'post' => 1,
                     'page' => 1
+                ],
+                'display_date' => [
+                    'post' => 1,
+                    'page' => 0
+                ],
+                'display_time' => [
+                    'post' => 1,
+                    'page' => 0
+                ],
+                'datetime_order' => 'time-date',
+                'display_readmore' => [
+                    'post' => 1
+                ],
+                'readmore_text' => '',
+                'display_author' => [
+                    'post' => 1
                 ]
             ]
         );
