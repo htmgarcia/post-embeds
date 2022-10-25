@@ -18,20 +18,11 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                 add_action( 'admin_menu', [$this, 'loadMenu'] );
             } else {
 
-                add_action( 'wp', function() {
+                add_action( 'wp', function()
+                {
                     global $wp_query;
 
-                    $settings           = get_option( 'vg_post_embeds_settings' );
-                    $post_types         = isset( $settings['post_types'] ) && is_array( $settings['post_types'] )
-                                            ? $settings['post_types']
-                                            : ['post' => 1, 'page' => 1];
-                    $enabled_post_types = [];
-
-                    foreach( $post_types as $post_type => $key ) {
-                        if( (bool) $key ) {
-                            $enabled_post_types[] = $post_type;
-                        }
-                    }
+                    $enabled_post_types = self::supportedPostTypes();
 
                     // Check if current post is embed and post type is supported
                     if( $wp_query->is_embed && in_array( $wp_query->posts[0]->post_type, $enabled_post_types ) ) {
@@ -55,6 +46,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                         add_filter( 'embed_template', [$this, 'loadEmbedTemplate'], 9999 );
                         add_filter( 'body_class', [$this, 'setBodyClasses'], 9999 );
                         add_filter( 'embed_site_title_html', [$this, 'siteLogo'], 9999 );
+                        add_filter( 'excerpt_more', [$this, 'continueReading'], 9999 );
 
                         // Custom hooks
                         add_action( 'vg_post_embeds_datetime', [$this, 'dateTime'] );
@@ -63,6 +55,29 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                     }
                 } );
             }
+        }
+
+        /*
+         * Get supported post types according to settings
+         *
+         * @since 0.0.1
+         * @return array Enabled post types
+         */
+        private function supportedPostTypes()
+        {
+            $settings           = get_option( 'vg_post_embeds_settings' );
+            $post_types         = isset( $settings['post_types'] ) && is_array( $settings['post_types'] )
+                                    ? $settings['post_types']
+                                    : ['post' => 1, 'page' => 1];
+            $enabled_post_types = [];
+
+            foreach( $post_types as $post_type => $key ) {
+                if( (bool) $key ) {
+                    $enabled_post_types[] = $post_type;
+                }
+            }
+
+            return $enabled_post_types;
         }
 
         /*
@@ -156,7 +171,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                 // Read More
                 $display_readmore['post']   = isset( $settings['display_readmore']['post'] ) && (bool) $settings['display_readmore']['post'] ? 'checked' : '';
 
-                // Read More text
+                // Read More Text
                 $readmore_text              = isset( $settings['readmore_text'] ) ? esc_html( $settings['readmore_text'] ) : '';
 
                 // Author
@@ -217,6 +232,11 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                                             <?php echo $style === 'social-bird' ? ' selected' : '' ?>
                                         >
                                             <?php esc_attr_e( 'Social Bird', 'post-embeds' ) ?>
+                                        </option>
+                                        <option value="social-mark"
+                                            <?php echo $style === 'social-mark' ? ' selected' : '' ?>
+                                        >
+                                            <?php esc_attr_e( 'Social Mark', 'post-embeds' ) ?>
                                         </option>
                                     </select>
                                 </label>
@@ -532,7 +552,8 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        public function footerEmbed() {
+        public function footerEmbed()
+        {
         	if ( is_404() ) {
         		return;
         	}
@@ -577,7 +598,8 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        public function footerMeta() {
+        public function footerMeta()
+        {
             if ( is_404() ) {
         		return;
         	}
@@ -595,7 +617,8 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        public function siteLogo( $site_title ) {
+        public function siteLogo( $site_title )
+        {
         	$site_title = sprintf(
         		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="52" height="52" alt="" class="pe-embed-site-icon" /></a>',
         		esc_url( home_url() ),
@@ -609,11 +632,34 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         }
 
         /**
+         * Remove native "Continue Reading" link
+         *
+         * @since 0.0.1
+         *
+         * @param string $more_string Default 'more' string.
+         * @return string 'Continue reading' link or empty
+         */
+        public function continueReading( $more_string )
+        {
+            global $post;
+
+            $enabled_post_types = self::supportedPostTypes();
+
+            // Check if post type from current post is supported
+            if( in_array( $post->post_type, $enabled_post_types ) ) {
+                return '&hellip;';
+            }
+
+            return $more_string;
+        }
+
+        /**
          * Output comments counter
          *
          * @since 0.0.1
          */
-        public function commentsMeta() {
+        public function commentsMeta()
+        {
         	if ( is_404() || ! ( get_comments_number() || comments_open() ) ) {
         		return;
         	}
@@ -642,7 +688,8 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
          *
          * @since 0.0.1
          */
-        public function loadScripts() {
+        public function loadScripts()
+        {
         	wp_print_inline_script_tag(
         		file_get_contents( VG_POST_EMBEDS_DIR . '/assets/js/script.js' )
         	);
@@ -734,7 +781,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                              if( ! empty( $readmore_text ) ) {
                                  esc_html_e( $readmore_text );
                              } else {
-                                 esc_html_e( 'Read More', 'post-embeds' );
+                                 esc_html_e( 'Read more', 'post-embeds' );
                              }
                              ?>
                          </a>
