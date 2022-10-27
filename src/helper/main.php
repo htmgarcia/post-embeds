@@ -88,10 +88,10 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
          */
         public function loadEmbedTemplate( $template )
         {
-            $style = $this->singleSetting( 'style', 'social-bird' ) !== 'default'
-                ? 'custom' // custom.php template when style is different to 'default'
-                : 'default';
-            $template = VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php';
+            $style      = $this->singleSetting( 'style', 'social-bird' );
+            $template   = file_exists( VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php' )
+                            ? VG_POST_EMBEDS_DIR . '/templates/' . $style . '.php'
+                            : VG_POST_EMBEDS_DIR . '/templates/default.php';
 
             // Post not found or wrong URL
             if( is_404() ) {
