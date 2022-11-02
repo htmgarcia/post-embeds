@@ -32,13 +32,35 @@ if ( ! headers_sent() ) {
         <?php
         // $thumbnail_id, $shape and $image_size values comes from image.php
         include_once 'parts/image.php';
-        ?>
 
-        <div class="pe-excerpt-image<?php echo isset( $shape ) ? ' pe-image-shape-' . $shape : '' ?>">
+        if( isset( $shape ) && $shape === 'square' ) {
+            ?>
+            <div class="pe-excerpt">
+                <?php the_excerpt_embed(); ?>
+            </div>
+            <?php
+        }
+
+        $image_class = '';
+        $image_class .= isset( $shape ) ? ' pe-image-shape-' . $shape : '';
+        $image_class .= isset( $shape ) && $shape === 'square' ? ' pe-info-content' : '';
+        ?>
+        <div class="pe-excerpt-image<?php echo $image_class ?> pe-excerpt--no-image">
             <div class="pe-excerpt">
                 <?php
-                the_excerpt_embed();
-                do_action( 'embed_content' );
+                if( isset( $shape ) && $shape === 'square' ) {
+                    ?>
+                    <h4>
+                        <a href="<?php the_permalink(); ?>" target="_top">
+                            <?php the_title(); ?>
+                        </a>
+                    </h4>
+                    <?php do_action( 'vg_post_embeds_author' ); // .pe-author ?>
+                    <?php
+                } else{
+                    the_excerpt_embed();
+                    do_action( 'embed_content' );
+                }
                 ?>
             </div>
 
@@ -55,14 +77,16 @@ if ( ! headers_sent() ) {
             ?>
         </div>
 
-        <div class="pe-below-content">
-            <h4>
-                <a href="<?php the_permalink(); ?>" target="_top">
-                    <?php the_title(); ?>
-                </a>
-            </h4>
-            <?php do_action( 'vg_post_embeds_author' ); // .pe-author ?>
-        </div>
+        <?php if( ! isset( $shape ) || $shape !== 'square' ) : ?>
+            <div class="pe-below-content pe-info-content">
+                <h4>
+                    <a href="<?php the_permalink(); ?>" target="_top">
+                        <?php the_title(); ?>
+                    </a>
+                </h4>
+                <?php do_action( 'vg_post_embeds_author' ); // .pe-author ?>
+            </div>
+        <?php endif; ?>
 
         <?php do_action( 'vg_post_embeds_readmore' ); // .pe-readmore ?>
 
