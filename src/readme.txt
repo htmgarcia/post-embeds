@@ -27,7 +27,7 @@ Customizing posts embeds has never been easier! Want to display the author but n
 
 ## Need help?
 
-Before asking for support, please be sure to [read our documentation](https://htmgarcia.github.io/post-embeds/docs/). Maybe the answer to your question is there. If still you need help, post in [our WordPress support forum](https://wordpress.org/support/plugin/post-embeds/). Please note since this is a free plugin created and maintained by a single person, the help will be provided depending on my free time.
+Before asking for support, please be sure to [read our documentation](https://htmgarcia.github.io/post-embeds/#documentation). Maybe the answer to your question is there. If still you need help, post in [our WordPress support forum](https://wordpress.org/support/plugin/post-embeds/). Please note since this is a free plugin created and maintained by a single person, the help will be provided depending on my free time.
 
 ##  Have a suggestion to improve Post Embeds plugin?
 
