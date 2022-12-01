@@ -1,7 +1,7 @@
 <?php
 /**
- * @package WP Post Embeds
- * @since 0.0.1
+ * @package Post Embeds
+ * @since 1.0.0
  */
 
  if ( ! headers_sent() ) {

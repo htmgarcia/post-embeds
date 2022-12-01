@@ -60,7 +60,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /*
          * Get supported post types according to settings
          *
-         * @since 0.0.1
+         * @since 1.0.0
          * @return array Enabled post types
          */
         private function supportedPostTypes()
@@ -83,7 +83,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /*
          * Override core/theme embed template
          *
-         * @since 0.0.1
+         * @since 1.0.0
          * @param string $template The template file
          */
         public function loadEmbedTemplate( $template )
@@ -434,7 +434,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /*
          * Save settings
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         private function saveSettings()
         {
@@ -497,7 +497,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /*
          * Get value of a single setting
          *
-         * @since 0.0.1
+         * @since 1.0.0
          * @param string $setting Single setting stored in vg_post_embeds_settings option
          * @param string $default Default value when not saved in database
          *
@@ -514,7 +514,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /*
          * Success or error messages
          *
-         * @since 0.0.1
+         * @since 1.0.0
          * @param string $text The message to display
          * @param string $type 'error' or 'success' (default)
          */
@@ -538,7 +538,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /*
          * Set <body> classes
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function setBodyClasses( $classes )
         {
@@ -550,7 +550,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Footer output
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function footerEmbed()
         {
@@ -596,7 +596,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Footer meta output
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function footerMeta()
         {
@@ -615,7 +615,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Site logo output
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function siteLogo( $site_title )
         {
@@ -634,7 +634,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Remove native "Continue Reading" link
          *
-         * @since 0.0.1
+         * @since 1.0.0
          *
          * @param string $more_string Default 'more' string.
          * @return string 'Continue reading' link or empty
@@ -656,7 +656,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Output comments counter
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function commentsMeta()
         {
@@ -686,7 +686,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Output the JavaScript
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function loadScripts()
         {
@@ -698,7 +698,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Date & Time embed output
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function dateTime()
         {
@@ -758,7 +758,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Read more embed output
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function readmore()
         {
@@ -794,7 +794,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         /**
          * Author embed output
          *
-         * @since 0.0.1
+         * @since 1.0.0
          */
         public function author()
         {
