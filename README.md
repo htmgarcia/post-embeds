@@ -1,1 +1,1 @@
-# PostEmbedsCustomizer
+# Post Embeds WordPress plugin
