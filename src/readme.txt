@@ -14,7 +14,7 @@ You can embed your WordPress posts in other websites in a similar way you embed 
 
 Post Embeds plugin makes easy to customize your WordPress post embeds. You can make your post embeds use a similar design to Twitter and Facebook with just a few of clicks.
 
-Customizing posts embeds has never been easier! Want to display the author but not the date and time? [Post Embeds](https://htmgarcia.github.io/post-embeds/) makes this process very simple.
+Customizing posts embeds has never been easier! Want to display the author but not the date and time? [Post Embeds](https://postembeds.htmgarcia.com/) makes this process very simple.
 
 ## Main features
 
@@ -27,7 +27,7 @@ Customizing posts embeds has never been easier! Want to display the author but n
 
 ## Need help?
 
-Before asking for support, please be sure to [read our documentation](https://htmgarcia.github.io/post-embeds/#documentation). Maybe the answer to your question is there. If still you need help, post in [our WordPress support forum](https://wordpress.org/support/plugin/post-embeds/). Please note since this is a free plugin created and maintained by a single person, the help will be provided depending on my free time.
+Before asking for support, please be sure to [read our documentation](https://postembeds.htmgarcia.com/documentation/). Maybe the answer to your question is there. If still you need help, post in [our WordPress support forum](https://wordpress.org/support/plugin/post-embeds/). Please note since this is a free plugin created and maintained by a single person, the help will be provided depending on my free time.
 
 ##  Have a suggestion to improve Post Embeds plugin?
 
@@ -45,5 +45,5 @@ Found a bug? Please open an issue with all the details [in the Github repository
 
 == Changelog ==
 
-= 1.0.0 - 18 Nov 2022 =
+= 1.0.0 - 27 Dec 2022 =
   * First version
