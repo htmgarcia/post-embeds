@@ -11,7 +11,7 @@ if ( ! headers_sent() ) {
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="no-js">
 <head>
-    <title><?php echo wp_get_document_title(); ?></title>
+    <title><?php esc_html_e( wp_get_document_title() ); ?></title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?php do_action( 'embed_head' ); ?>
 </head>
@@ -22,8 +22,8 @@ if ( ! headers_sent() ) {
             <?php the_embed_site_title(); ?>
             <div>
                 <h4>
-                    <a href="<?php echo get_site_url(); ?>" target="_top">
-                        <?php echo esc_html( get_bloginfo( 'name' ) ) ?>
+                    <a href="<?php echo esc_url( get_site_url() ); ?>" target="_top">
+                        <?php esc_html_e( get_bloginfo( 'name' ) ) ?>
                     </a>
                 </h4>
                 <?php do_action( 'vg_post_embeds_datetime' ); // .pe-date ?>
@@ -45,7 +45,7 @@ if ( ! headers_sent() ) {
         $image_class .= isset( $shape ) ? ' pe-image-shape-' . $shape : '';
         $image_class .= isset( $shape ) && $shape === 'square' ? ' pe-info-content' : '';
         ?>
-        <div class="pe-excerpt-image<?php echo $image_class ?> pe-excerpt--no-image">
+        <div class="pe-excerpt-image<?php esc_html_e( $image_class ) ?> pe-excerpt--no-image">
             <div class="pe-excerpt">
                 <?php
                 if( isset( $shape ) && $shape === 'square' ) {
@@ -68,7 +68,7 @@ if ( ! headers_sent() ) {
             if ( $thumbnail_id ) :
                 $image_url = wp_get_attachment_image_url( $thumbnail_id, $image_size );
                 ?>
-                <div class="pe-image" style="background-image:url(<?php echo $image_url ?>);">
+                <div class="pe-image" style="background-image:url(<?php echo esc_url( $image_url ) ?>);">
                     <a href="<?php the_permalink(); ?>" target="_top"></a>
                     <?php echo wp_get_attachment_image( $thumbnail_id, $image_size ); ?>
                 </div>

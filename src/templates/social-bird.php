@@ -11,7 +11,7 @@ if ( ! headers_sent() ) {
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="no-js">
 <head>
-    <title><?php echo wp_get_document_title(); ?></title>
+    <title><?php esc_html_e( wp_get_document_title() ); ?></title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?php do_action( 'embed_head' ); ?>
 </head>
@@ -34,7 +34,7 @@ if ( ! headers_sent() ) {
         include_once 'parts/image.php';
         ?>
 
-        <div class="pe-excerpt-image<?php echo isset( $shape ) ? ' pe-image-shape-' . $shape : '' ?>">
+        <div class="pe-excerpt-image<?php echo isset( $shape ) ? ' pe-image-shape-' . esc_html( $shape ) : '' ?>">
             <a href="<?php the_permalink(); ?>" target="_top"></a>
             <div class="pe-excerpt">
                 <?php
@@ -47,7 +47,7 @@ if ( ! headers_sent() ) {
             if ( $thumbnail_id ) :
                 $image_url = wp_get_attachment_image_url( $thumbnail_id, $image_size );
                 ?>
-                <div class="pe-image" style="background-image:url(<?php echo $image_url ?>);">
+                <div class="pe-image" style="background-image:url(<?php echo esc_url( $image_url ) ?>);">
                     <?php echo wp_get_attachment_image( $thumbnail_id, $image_size ); ?>
                 </div>
                 <?php

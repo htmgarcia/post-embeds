@@ -12,7 +12,7 @@
  <!DOCTYPE html>
  <html <?php language_attributes(); ?> class="no-js">
  <head>
- 	<title><?php echo wp_get_document_title(); ?></title>
+ 	<title><?php esc_html_e( wp_get_document_title() ); ?></title>
  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
  	<?php
  	/**

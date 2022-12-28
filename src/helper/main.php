@@ -108,11 +108,13 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         {
             $type_attr  = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
             $style      = $this->singleSetting( 'style', 'social-bird' );
-            ?>
-            <style<?php echo $type_attr; ?>>
-        		<?php echo file_get_contents( dirname( __FILE__ ) . '/../assets/css/' . $style . '.css' ); ?>
-        	</style>
-            <?php
+            $css        = file_get_contents( dirname( __FILE__ ) . '/../assets/css/' . esc_html( $style ) . '.css' );
+
+            printf(
+                '<style%s>%s</style>',
+                $type_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                $css // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		    );
         }
 
         /*
@@ -341,8 +343,11 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                                 <p>
                                     <?php
                                     printf(
-                                        __( 'Check %3$sDate Format%4$s and %3$sTime Format%4$s in %1$sSettings%2$s.', 'post-embeds' ),
-                                        '<a href="' . admin_url( 'options-general.php' ) . '" target="_blank">',
+                                        esc_html__(
+                                            'Check %3$sDate Format%4$s and %3$sTime Format%4$s in %1$sSettings%2$s.',
+                                            'post-embeds'
+                                        ),
+                                        '<a href="' . esc_url( admin_url( 'options-general.php' ) ) . '" target="_blank">',
                                         '</a>',
                                         '<strong>',
                                         '</strong>'
@@ -383,7 +388,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                                 <label>
                                     <input type="text" name="readmore_text"
                                            class="regular-text"
-                                           value="<?php esc_html_e( $readmore_text ) ?>"
+                                           value="<?php esc_attr_e( $readmore_text ) ?>"
                                     />
                                 </label>
                                 <p class="description">
@@ -444,7 +449,8 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
 
             if ( isset( $_POST['save'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we check nonce below
             {
-                if ( ! wp_verify_nonce(
+                if ( ! isset( $_POST['vg_post_embeds_settings_nonce_field'] )
+                    || ! wp_verify_nonce(
                         sanitize_key( $_POST['vg_post_embeds_settings_nonce_field'] ),
                         'vg_post_embeds_settings_nonce'
                     )
@@ -527,9 +533,9 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
             }
 
             ?>
-            <div id="message" class="<?php echo $class ?>">
+            <div id="message" class="<?php esc_attr_e( $class ) ?>">
                 <p>
-                    <?php echo $text; ?>
+                    <?php esc_html_e( $text ); ?>
                 </p>
             </div>
             <?php
@@ -669,13 +675,13 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
         			<span class="dashicons dashicons-admin-comments"></span>
         			<?php
         			printf(
-        				/* translators: %s: Number of comments. */
-        				_n(
+        				/* translators: %s: Number of comments.*/
+        				_n( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         					'%s <span class="screen-reader-text">Comment</span>',
         					'%s <span class="screen-reader-text">Comments</span>',
         					get_comments_number()
         				),
-        				number_format_i18n( get_comments_number() )
+        				esc_html( number_format_i18n( get_comments_number() ) )
         			);
         			?>
         		</a>
@@ -749,7 +755,11 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
             if( ! empty( $output ) ) {
                 ?>
                 <div class="pe-date">
-                    <p><?php echo $output ?></p>
+                    <p>
+                        <?php
+                        echo $output // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                        ?>
+                    </p>
                 </div>
                 <?php
             }
@@ -809,11 +819,11 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
 
             if( $display_author ) {
                 $author_name    = get_the_author_meta( 'display_name' , $post->post_author );
-                $author_url     = esc_url( get_author_posts_url( $post->post_author ) );
+                $author_url     = get_author_posts_url( $post->post_author );
                 ?>
                 <div class="pe-author">
-                    <a href="<?php echo $author_url ?>">
-                        <?php echo $author_name ?>
+                    <a href="<?php echo esc_url( $author_url ) ?>">
+                        <?php esc_html_e( $author_name ) ?>
                     </a>
                 </div>
                 <?php
