@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Post Embeds
- * Plugin URI:        https://htmgarcia.github.io/post-embeds/
+ * Plugin URI:        https://postembeds.htmgarcia.com/
  * Description:       Customize your WordPress post embeds.
  * Author:            Valentin Garcia
  * Author URI:        https://htmgarcia.github.io/

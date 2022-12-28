@@ -45,5 +45,5 @@ Found a bug? Please open an issue with all the details [in the Github repository
 
 == Changelog ==
 
-= 1.0.0 - 27 Dec 2022 =
+= 1.0.0 - 28 Dec 2022 =
   * First version
