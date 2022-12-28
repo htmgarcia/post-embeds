@@ -22,3 +22,6 @@ node_modules/
 *.sql
 *.sqlite
 src/package-lock.json
+
+# ignore vendor folder
+vendor/*
