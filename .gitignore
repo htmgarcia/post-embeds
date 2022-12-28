@@ -25,3 +25,4 @@ src/package-lock.json
 
 # ignore vendor folder
 vendor/*
+*.csv
