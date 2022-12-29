@@ -731,9 +731,9 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                 $datetime_order = $this->singleSetting( 'datetime_order', 'date-time' );
 
                 if( $datetime_order === 'time-date' ) {
-                    $format = '%1$s &bullet; %2$s';
+                    $format = '%1$s • %2$s';
                 } else {
-                    $format = '%2$s &bullet; %1$s';
+                    $format = '%2$s • %1$s';
                 }
 
                 $output = sprintf(
@@ -756,9 +756,7 @@ if( ! class_exists( 'vgPostEmbedsCustomizer' ) ) {
                 ?>
                 <div class="pe-date">
                     <p>
-                        <?php
-                        echo $output // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                        ?>
+                        <?php echo esc_html( $output ) ?>
                     </p>
                 </div>
                 <?php
