@@ -21,3 +21,8 @@ node_modules/
 *.log
 *.sql
 *.sqlite
+src/package-lock.json
+
+# ignore vendor folder
+vendor/*
+*.csv

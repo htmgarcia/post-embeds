@@ -1,0 +1,16 @@
+.wp-embed {
+
+	.pe-author,
+	.pe-date,
+	.pe-readmore {
+		margin-bottom: 15px;
+	}
+
+	.pe-readmore a {
+		color: #c3c4c7;
+	}
+
+	.wp-embed-excerpt + .pe-readmore {
+		margin-top: 15px;
+	}
+}
