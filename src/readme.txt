@@ -1,6 +1,6 @@
 === Post Embeds - Customize your WordPress post embeds ===
 Contributors: htmgarcia
-Tags: post embeds, embeds design, customize embeds, embeds
+Tags: post, embeds, design
 Requires at least: 5.0
 Tested up to: 6.1.1
 Stable tag: 1.0.0
